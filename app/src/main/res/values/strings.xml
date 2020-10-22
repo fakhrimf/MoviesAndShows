@@ -1,0 +1,6 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Movies \'n Shows</string>
+    <string name="color_pallete" tools:ignore="TypographyDashes">https://coolors.co/041b15-136f63-22aaa1-4ce0d2-84cae7</string>
+    <string name="appname_with_endlines">Movies\n\'n\nShows</string>
+    <string name="no_data_available">No data available...</string>
+</resources>
