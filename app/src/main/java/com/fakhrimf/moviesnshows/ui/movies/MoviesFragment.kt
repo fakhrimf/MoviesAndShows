@@ -34,7 +34,19 @@ class MoviesFragment : Fragment(), MoviesListener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+//        initDummy()
         setRecycler()
+    }
+
+//    For Instrument Testing
+    private fun initDummy() {
+        loading.visibility = View.GONE
+        val moviesDummy = ArrayList<MovieModel>()
+        for (i in 0 until 10) {
+            moviesDummy.add(MovieModel("$i", "$i", "$i", null, null, "$i"))
+        }
+        rvMovie.layoutManager = LinearLayoutManager(context)
+        rvMovie.adapter = MoviesAdapter(moviesDummy, this)
     }
 
     private fun setRecycler() {

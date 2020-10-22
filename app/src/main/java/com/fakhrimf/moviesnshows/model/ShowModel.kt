@@ -10,7 +10,7 @@ data class ShowModel(
     @SerializedName("original_name")
     val title:String,
     val first_air_date:String,
-    val backdrop_path:String,
-    val poster_path:String,
+    val backdrop_path:String?,
+    val poster_path:String?,
     val overview:String
 ) : Parcelable

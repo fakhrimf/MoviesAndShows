@@ -38,7 +38,19 @@ class ShowsFragment : Fragment(), ShowsListener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+//        initDummy()
         setRecycler()
+    }
+
+//    For Instrument Testing
+    private fun initDummy() {
+        loading.visibility = View.GONE
+        val dummy = ArrayList<ShowModel>()
+        for (i in 0 until 10) {
+            dummy.add(ShowModel("$i", "Shows", "$i", null, null, "$i"))
+        }
+        rvShows.layoutManager = LinearLayoutManager(context)
+        rvShows.adapter = ShowsAdapter(dummy, this)
     }
 
     private fun setRecycler() {
