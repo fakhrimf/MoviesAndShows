@@ -5,6 +5,7 @@ import com.fakhrimf.moviesnshows.model.ErrorState
 import com.fakhrimf.moviesnshows.model.MovieModel
 import com.fakhrimf.moviesnshows.model.MovieResponse
 import com.fakhrimf.moviesnshows.utils.API_KEY
+import com.fakhrimf.moviesnshows.utils.EspressoHelper
 import com.fakhrimf.moviesnshows.utils.LOCALE_EN
 import com.fakhrimf.moviesnshows.utils.repository.MovieShowRepository
 import com.fakhrimf.moviesnshows.utils.repository.remote.ApiClient
@@ -19,6 +20,7 @@ class MoviesViewModel(private val repository: MovieShowRepository) : ViewModel()
     val allMovies: LiveData<List<MovieModel>> by lazy {
         repository.allMovies
     }
+    var responseCode = 0
     val errorState: MutableLiveData<ErrorState> by lazy {
         MutableLiveData<ErrorState>()
     }
@@ -33,6 +35,9 @@ class MoviesViewModel(private val repository: MovieShowRepository) : ViewModel()
     }
 
     fun getPopularMovies() {
+//        uncomment kode dibawah untuk testing idle resource, kode di comment agar tidak
+//        memory leak.
+        EspressoHelper.increment()
         val call: Call<MovieResponse> = apiInterface.getPopularMovie(API_KEY, LOCALE_EN)
         call.enqueue(object : Callback<MovieResponse> {
             override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
@@ -40,13 +45,16 @@ class MoviesViewModel(private val repository: MovieShowRepository) : ViewModel()
             }
 
             override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
+                if (!EspressoHelper.get().isIdleNow) EspressoHelper.decrement()
+                responseCode = response.code()
                 for (i in response.body()!!.results) insertMovies(i)
             }
         })
     }
 }
 
-class MoviesViewModelFactory(private val repository: MovieShowRepository) : ViewModelProvider.Factory {
+class MoviesViewModelFactory(private val repository: MovieShowRepository) :
+    ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MoviesViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
