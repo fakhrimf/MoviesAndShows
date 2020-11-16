@@ -8,13 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fakhrimf.moviesnshows.R
 import com.fakhrimf.moviesnshows.ShowsDetailActivity
 import com.fakhrimf.moviesnshows.model.ShowModel
 import com.fakhrimf.moviesnshows.utils.SHOW_KEY
+import com.fakhrimf.moviesnshows.utils.repository.MovieShowApplication
 import kotlinx.android.synthetic.main.show_fragment.*
 
 class ShowsFragment : Fragment(), ShowsListener {
@@ -23,10 +24,8 @@ class ShowsFragment : Fragment(), ShowsListener {
         fun newInstance() = ShowsFragment()
     }
 
-    private val vm by lazy {
-        ViewModelProvider(
-            this
-        ).get(ShowViewModel::class.java)
+    private val showViewModel: ShowViewModel by viewModels {
+        ShowViewModelFactory((requireActivity().application as MovieShowApplication).repository)
     }
 
     override fun onCreateView(
@@ -40,11 +39,13 @@ class ShowsFragment : Fragment(), ShowsListener {
         super.onActivityCreated(savedInstanceState)
 //        initDummy()
         setRecycler()
+        srl_shows.setOnRefreshListener {
+            setRecycler()
+        }
     }
 
-//    For Instrument Testing
+    //    For Instrument Testing
     private fun initDummy() {
-        loading.visibility = View.GONE
         val dummy = ArrayList<ShowModel>()
         for (i in 0 until 10) {
             dummy.add(ShowModel("$i", "Shows", "$i", null, null, "$i"))
@@ -54,10 +55,11 @@ class ShowsFragment : Fragment(), ShowsListener {
     }
 
     private fun setRecycler() {
-        vm.getPopularShows()
-        vm.showsList.observe(viewLifecycleOwner, Observer {
-            loading.visibility = View.GONE
+        showViewModel.getPopularShows()
+        srl_shows.isRefreshing = true
+        showViewModel.allShows.observe(viewLifecycleOwner, Observer {
             no_data.visibility = View.GONE
+            srl_shows.isRefreshing = false
             rvShows.layoutManager = LinearLayoutManager(context)
             rvShows.adapter = ShowsAdapter(it, this)
         })
@@ -65,7 +67,7 @@ class ShowsFragment : Fragment(), ShowsListener {
         mHandler.postDelayed({
             no_data.visibility = View.VISIBLE
         }, 10000)
-        vm.errorState.observe(viewLifecycleOwner, Observer {
+        showViewModel.errorState.observe(viewLifecycleOwner, Observer {
             if (it.error) {
                 no_data.text = it.errorMessage
                 no_data.visibility = View.VISIBLE

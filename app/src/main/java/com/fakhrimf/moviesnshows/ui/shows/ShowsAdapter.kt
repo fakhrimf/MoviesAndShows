@@ -8,7 +8,7 @@ import com.fakhrimf.moviesnshows.databinding.LayoutItemShowBinding
 import com.fakhrimf.moviesnshows.model.ShowModel
 
 class ShowsAdapter(
-    private val item: ArrayList<ShowModel>,
+    private val item: List<ShowModel>,
     private val mListener: ShowsListener
 ) : RecyclerView.Adapter<ShowsAdapter.Holder>() {
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): Holder {

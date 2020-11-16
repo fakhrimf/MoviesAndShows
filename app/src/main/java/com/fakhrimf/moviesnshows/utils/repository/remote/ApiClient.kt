@@ -1,4 +1,4 @@
-package com.fakhrimf.moviesnshows.utils.source.remote
+package com.fakhrimf.moviesnshows.utils.repository.remote
 
 import com.fakhrimf.moviesnshows.model.MovieModel
 import com.fakhrimf.moviesnshows.model.MovieResponse

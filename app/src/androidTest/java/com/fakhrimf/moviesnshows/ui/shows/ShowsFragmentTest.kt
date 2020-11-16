@@ -31,7 +31,7 @@ class ShowsFragmentTest {
         }
     }
 
-    fun swipeToShows() {
+    private fun swipeToShows() {
         val matcher = allOf(withText("Shows"), isDescendantOfA(withId(R.id.tab_layout)))
         onView(matcher).perform(click())
         SystemClock.sleep(800)

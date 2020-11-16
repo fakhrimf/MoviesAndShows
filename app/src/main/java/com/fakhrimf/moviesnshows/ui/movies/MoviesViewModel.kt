@@ -1,27 +1,35 @@
 package com.fakhrimf.moviesnshows.ui.movies
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.fakhrimf.moviesnshows.model.ErrorState
 import com.fakhrimf.moviesnshows.model.MovieModel
 import com.fakhrimf.moviesnshows.model.MovieResponse
 import com.fakhrimf.moviesnshows.utils.API_KEY
 import com.fakhrimf.moviesnshows.utils.LOCALE_EN
-import com.fakhrimf.moviesnshows.utils.source.remote.ApiClient
-import com.fakhrimf.moviesnshows.utils.source.remote.ApiInterface
+import com.fakhrimf.moviesnshows.utils.repository.MovieShowRepository
+import com.fakhrimf.moviesnshows.utils.repository.remote.ApiClient
+import com.fakhrimf.moviesnshows.utils.repository.remote.ApiInterface
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MoviesViewModel() : ViewModel() {
-    val moviesList: MutableLiveData<ArrayList<MovieModel>> by lazy {
-        MutableLiveData<ArrayList<MovieModel>>()
+class MoviesViewModel(private val repository: MovieShowRepository) : ViewModel() {
+    val allMovies: LiveData<List<MovieModel>> by lazy {
+        repository.allMovies
     }
     val errorState: MutableLiveData<ErrorState> by lazy {
         MutableLiveData<ErrorState>()
     }
     private val apiInterface: ApiInterface by lazy {
         ApiClient.getClient().create(ApiInterface::class.java)
+    }
+
+    private fun insertMovies(movieModel: MovieModel) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertMovies(movieModel)
+        }
     }
 
     fun getPopularMovies() {
@@ -32,8 +40,18 @@ class MoviesViewModel() : ViewModel() {
             }
 
             override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
-                moviesList.value = response.body()?.results
+                for (i in response.body()!!.results) insertMovies(i)
             }
         })
+    }
+}
+
+class MoviesViewModelFactory(private val repository: MovieShowRepository) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(MoviesViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return MoviesViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

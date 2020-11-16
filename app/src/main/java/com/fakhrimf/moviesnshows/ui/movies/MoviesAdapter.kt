@@ -8,7 +8,7 @@ import androidx.databinding.library.baseAdapters.BR
 import com.fakhrimf.moviesnshows.model.MovieModel
 
 class MoviesAdapter(
-    private val item: ArrayList<MovieModel>,
+    private val item: List<MovieModel>,
     private val mListener: MoviesListener
 ) : RecyclerView.Adapter<MoviesAdapter.Holder>() {
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): Holder {

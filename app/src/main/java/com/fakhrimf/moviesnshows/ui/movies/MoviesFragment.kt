@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,14 +16,13 @@ import com.fakhrimf.moviesnshows.MoviesDetailActivity
 import com.fakhrimf.moviesnshows.R
 import com.fakhrimf.moviesnshows.model.MovieModel
 import com.fakhrimf.moviesnshows.utils.MOVIE_KEY
+import com.fakhrimf.moviesnshows.utils.repository.MovieShowApplication
 import kotlinx.android.synthetic.main.movies_fragment.*
 
 class MoviesFragment : Fragment(), MoviesListener {
 
-    private val moviesViewModel by lazy {
-        ViewModelProvider(
-            this
-        ).get(MoviesViewModel::class.java)
+    private val moviesViewModel: MoviesViewModel by viewModels {
+        MoviesViewModelFactory((requireActivity().application as MovieShowApplication).repository)
     }
 
     override fun onCreateView(
@@ -36,11 +36,13 @@ class MoviesFragment : Fragment(), MoviesListener {
         super.onActivityCreated(savedInstanceState)
 //        initDummy()
         setRecycler()
+        srl_movies.setOnRefreshListener {
+            setRecycler()
+        }
     }
 
 //    For Instrument Testing
     private fun initDummy() {
-        loading.visibility = View.GONE
         val moviesDummy = ArrayList<MovieModel>()
         for (i in 0 until 10) {
             moviesDummy.add(MovieModel("$i", "$i", "$i", null, null, "$i"))
@@ -50,9 +52,10 @@ class MoviesFragment : Fragment(), MoviesListener {
     }
 
     private fun setRecycler() {
+        srl_movies.isRefreshing = true
         moviesViewModel.getPopularMovies()
-        moviesViewModel.moviesList.observe(viewLifecycleOwner, Observer {
-            loading.visibility = View.GONE
+        moviesViewModel.allMovies.observe(viewLifecycleOwner, Observer {
+            srl_movies.isRefreshing = false
             rvMovie.layoutManager = LinearLayoutManager(context)
             rvMovie.adapter = MoviesAdapter(it, this)
         })
