@@ -1,6 +1,5 @@
 package com.fakhrimf.moviesnshows.ui.movies
 
-import android.os.SystemClock
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
@@ -43,7 +42,6 @@ class MoviesFragmentTest {
 
     @Test
     fun loadDetails() {
-        SystemClock.sleep(800)
         onView(withId(R.id.rvMovie)).perform(
             RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                 0,

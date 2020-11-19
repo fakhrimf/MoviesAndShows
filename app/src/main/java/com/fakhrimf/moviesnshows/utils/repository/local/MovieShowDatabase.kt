@@ -23,7 +23,7 @@ abstract class MovieShowDatabase: RoomDatabase() {
                     context.applicationContext,
                     MovieShowDatabase::class.java,
                     "movie_show_database"
-                ).build()
+                ).allowMainThreadQueries().build()
                 // Set variable instance menjadi tidak null
                 INSTANCE = instance
                 // Return instance apabila database null

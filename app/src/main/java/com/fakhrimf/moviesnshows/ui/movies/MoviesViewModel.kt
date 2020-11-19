@@ -20,7 +20,6 @@ class MoviesViewModel(private val repository: MovieShowRepository) : ViewModel()
     val allMovies: LiveData<List<MovieModel>> by lazy {
         repository.allMovies
     }
-    var responseCode = 0
     val errorState: MutableLiveData<ErrorState> by lazy {
         MutableLiveData<ErrorState>()
     }
@@ -28,7 +27,7 @@ class MoviesViewModel(private val repository: MovieShowRepository) : ViewModel()
         ApiClient.getClient().create(ApiInterface::class.java)
     }
 
-    private fun insertMovies(movieModel: MovieModel) {
+    fun insertMovies(movieModel: MovieModel) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.insertMovies(movieModel)
         }
@@ -37,7 +36,7 @@ class MoviesViewModel(private val repository: MovieShowRepository) : ViewModel()
     fun getPopularMovies() {
 //        uncomment kode dibawah untuk testing idle resource, kode di comment agar tidak
 //        memory leak.
-        EspressoHelper.increment()
+//        EspressoHelper.increment()
         val call: Call<MovieResponse> = apiInterface.getPopularMovie(API_KEY, LOCALE_EN)
         call.enqueue(object : Callback<MovieResponse> {
             override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
@@ -45,8 +44,7 @@ class MoviesViewModel(private val repository: MovieShowRepository) : ViewModel()
             }
 
             override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
-                if (!EspressoHelper.get().isIdleNow) EspressoHelper.decrement()
-                responseCode = response.code()
+//                if (!EspressoHelper.get().isIdleNow) EspressoHelper.decrement()
                 for (i in response.body()!!.results) insertMovies(i)
             }
         })
